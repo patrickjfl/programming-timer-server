@@ -54,6 +54,12 @@ type UpdateRequest struct {
 	UpdatedDuration int64 `json:"updatedDuration,omitempty"`
 }
 
+//PauseRequest
+type PauseRequest struct {
+	SessionID string `json:"sessionId"`
+	PauseTime int64 `json:"pauseTime"`
+}
+
 // Sessions is a collection of all current sessions
 var Sessions []Session
 
