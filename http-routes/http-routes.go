@@ -50,15 +50,15 @@ func pauseSessionEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	var sessionToPause session.PauseRequest
 	var requestBody = r.Body
+	log.Println("request body", requestBody)
 	enableCors(&w)
-	log.Println("pause session endpoint reached")
 	err := json.NewDecoder(requestBody).Decode(&sessionToPause)
+	log.Println("pause session endpoint reached", sessionToPause)
 	if err != nil {
 		log.Println(err)
 	}
 	defer r.Body.Close()
 	session.PauseTimerChannel <- sessionToPause
-
 	// newUser := session.User{ UUID: utils.GenerateRandomID("user") }
 	// newSession := session.CreateNewUserAndSession(
 	// 	timerRequest,
@@ -76,6 +76,7 @@ func pauseSessionEndpoint(w http.ResponseWriter, r *http.Request) {
 func newSessionEndpoint(w http.ResponseWriter, r *http.Request) {
 	var timerRequest session.StartTimerReq
 	var requestBody = r.Body
+	log.Println(requestBody)
 	enableCors(&w)
 	err := json.NewDecoder(requestBody).Decode(&timerRequest)
 	if err != nil {
@@ -128,6 +129,7 @@ func SetupRoutes() {
 	http.HandleFunc("/session/new", newSessionEndpoint)
 	http.HandleFunc("/session/join", joinSessionEndpoint)
 	http.HandleFunc("/session/update", updateSessionEndpoint)
-	http.HandleFunc("/session/pause", pauseSessionEndpoint)
 	go readers.UpdateChannelReader()
+	http.HandleFunc("/session/pause", pauseSessionEndpoint)
+	go readers.PauseChannelReader()
 }

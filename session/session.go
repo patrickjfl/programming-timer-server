@@ -28,9 +28,13 @@ type Session struct {
 	Duration        int64
 	StartTime       int64
 	EndTime         int64
-	PauseTime       int64
 	PreviousDrivers []User
 	Users           []User
+}
+
+// PauseSessionResponse ... the time when a user pauses the timer
+type PauseSessionResponse struct {
+	PauseTime int64
 }
 
 // InitSessionResponse is ... on inital connection
@@ -120,18 +124,19 @@ func HandleUpdateSession(sessionToUpdate UpdateRequest) {
 		log.Println("updateError", updateErr)
 		return
 	}
-	Sessions[updatedSessionIdx].broadcastToSessionUsers()
+	Sessions[updatedSessionIdx].broadcast(Sessions[updatedSessionIdx])
 }
 
 // HandlePauseSession when the driver pauses the timer
 func HandlePauseSession(sessionToPause PauseRequest) {
+	pauseTime := PauseSessionResponse{PauseTime: sessionToPause.PauseTime}
+	log.Println(sessionToPause)
 	pausedSessionIdx, pauseErr := getExistingSession(sessionToPause.SessionID)
 	if pauseErr != nil {
 		log.Println("pauseError", pauseErr)
 		return
 	}
-	Sessions[pausedSessionIdx].PauseTime = sessionToPause.PauseTime
-	Sessions[pausedSessionIdx].broadcastToSessionUsers()
+	Sessions[pausedSessionIdx].broadcast(pauseTime)
 }
 
 // HandleRemoveUser ... of a disconneted user from the relevent session
@@ -147,11 +152,28 @@ func HandleRemoveUser(conn *websocket.Conn) error {
 	return nil
 }
 
-func (session *Session) broadcastToSessionUsers() {
+func (session *Session) broadcast(payload interface{}) {
 	for _, user := range session.Users {
-		user.Conn.WriteJSON(session)
+		log.Println("broadcast", payload)
+		user.Conn.WriteJSON(payload)
 	}
 }
+
+// func (session *Session) broadcastToSessionUsers() {
+// 	session.broadcast(session.Users, session)
+// 	// for _, user := range session.Users {
+// 	// 	log.Println("broadcast", session)
+// 	// 	user.Conn.WriteJSON(session)
+// 	// }
+// }
+
+// func (session *Session) broadcastPauseToUsers(res PauseSessionResponse) {
+// 	broadcast(session.Users, res)
+// 	// for _, user := range session.Users {
+// 	// 	log.Println("broadcast", session)
+// 	// 	user.Conn.WriteJSON(session)
+// 	// }
+// }
 
 // RemoveSession ... for a abandoned session
 func RemoveSession(sessionID string) error {
@@ -289,7 +311,7 @@ func (session *Session) removeUser(userIdx int) {
 func (session *Session) resetCurrentDriver(userToBeRemoved User) {
 	if userToBeRemoved == session.CurrentDriver {
 		session.changeDriver()
-		session.broadcastToSessionUsers()
+		session.broadcast(session)
 	}
 }
 
