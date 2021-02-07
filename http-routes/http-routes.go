@@ -57,6 +57,20 @@ func pauseSessionEndpoint(w http.ResponseWriter, r *http.Request) {
 	session.PauseTimerChannel <- sessionToPause
 }
 
+func unpauseSessionEndpoint(w http.ResponseWriter, r *http.Request) {
+	var sessionToUnpause session.PauseRequest
+	var requestBody = r.Body
+	log.Println("request body", requestBody)
+	enableCors(&w)
+	err := json.NewDecoder(requestBody).Decode(&sessionToUnpause)
+	log.Println("unpause session endpoint reached", sessionToUnpause)
+	if err != nil {
+		log.Println(err)
+	}
+	defer r.Body.Close()
+	session.UnpauseTimerChannel <- sessionToUnpause
+}
+
 func newSessionEndpoint(w http.ResponseWriter, r *http.Request) {
 	var timerRequest session.StartTimerReq
 	var requestBody = r.Body
@@ -116,4 +130,6 @@ func SetupRoutes() {
 	go readers.UpdateChannelReader()
 	http.HandleFunc("/session/pause", pauseSessionEndpoint)
 	go readers.PauseChannelReader()
+	http.HandleFunc("/session/unpause", unpauseSessionEndpoint)
+	go readers.UnpauseChannelReader()
 }

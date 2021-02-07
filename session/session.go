@@ -37,6 +37,11 @@ type PauseSessionResponse struct {
 	PauseTime int64
 }
 
+// UnpauseSessionResponse ... the time when a user restarts the timer
+type UnpauseSessionResponse struct {
+	UnpauseTime int64
+}
+
 // InitSessionResponse is ... on inital connection
 type InitSessionResponse struct {
 	Session Session
@@ -60,7 +65,7 @@ type UpdateRequest struct {
 	UpdatedDuration int64  `json:"updatedDuration,omitempty"`
 }
 
-// PauseRequest ... incoming pause time and session ID from client (current driver)
+// PauseRequest ... incoming pause time and session ID from client
 type PauseRequest struct {
 	SessionID string `json:"sessionId"`
 	PauseTime int64  `json:"pauseTime"`
@@ -74,6 +79,9 @@ var UpdateTimerChannel = make(chan UpdateRequest)
 
 // PauseTimerChannel reads pause requests as they come in via pauseSessionEndpoint
 var PauseTimerChannel = make(chan PauseRequest)
+
+// UnpauseTimerChannel reads restart requests as they come in via unpauseSessionEndpoint
+var UnpauseTimerChannel = make(chan PauseRequest)
 
 // CreateNewUserAndSession creates new users and sessions
 func CreateNewUserAndSession(
@@ -137,6 +145,17 @@ func HandlePauseSession(sessionToPause PauseRequest) {
 		return
 	}
 	Sessions[pausedSessionIdx].broadcast(pauseTime)
+}
+
+// HandleUnpauseSession when the driver pauses the timer
+func HandleUnpauseSession(sessionToUnpause PauseRequest) {
+	unpauseTime := UnpauseSessionResponse{UnpauseTime: sessionToUnpause.PauseTime}
+	unpausedSessionIdx, unpauseErr := getExistingSession(sessionToUnpause.SessionID)
+	if unpauseErr != nil {
+		log.Println("pauseError", unpauseErr)
+		return
+	}
+	Sessions[unpausedSessionIdx].broadcast(unpauseTime)
 }
 
 // HandleRemoveUser ... of a disconneted user from the relevent session

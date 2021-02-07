@@ -44,3 +44,11 @@ func PauseChannelReader() {
 		session.HandlePauseSession(pauseRequest)
 	}
 }
+
+//UnpauseChannelReader handles restart requests
+func UnpauseChannelReader() {
+	for {
+		pauseRequest := <-session.UnpauseTimerChannel
+		session.HandleUnpauseSession(pauseRequest)
+	}
+}
