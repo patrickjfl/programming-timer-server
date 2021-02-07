@@ -159,22 +159,6 @@ func (session *Session) broadcast(payload interface{}) {
 	}
 }
 
-// func (session *Session) broadcastToSessionUsers() {
-// 	session.broadcast(session.Users, session)
-// 	// for _, user := range session.Users {
-// 	// 	log.Println("broadcast", session)
-// 	// 	user.Conn.WriteJSON(session)
-// 	// }
-// }
-
-// func (session *Session) broadcastPauseToUsers(res PauseSessionResponse) {
-// 	broadcast(session.Users, res)
-// 	// for _, user := range session.Users {
-// 	// 	log.Println("broadcast", session)
-// 	// 	user.Conn.WriteJSON(session)
-// 	// }
-// }
-
 // RemoveSession ... for a abandoned session
 func RemoveSession(sessionID string) error {
 	// find session by sessionID

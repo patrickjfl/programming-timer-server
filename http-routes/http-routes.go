@@ -44,10 +44,6 @@ func updateSessionEndpoint(w http.ResponseWriter, r *http.Request) {
 }
 
 func pauseSessionEndpoint(w http.ResponseWriter, r *http.Request) {
-	//send sessionID and pause time stamp
-	//find session
-	//broadcast new type to session with time stamp and pause
-
 	var sessionToPause session.PauseRequest
 	var requestBody = r.Body
 	log.Println("request body", requestBody)
@@ -59,18 +55,6 @@ func pauseSessionEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 	session.PauseTimerChannel <- sessionToPause
-	// newUser := session.User{ UUID: utils.GenerateRandomID("user") }
-	// newSession := session.CreateNewUserAndSession(
-	// 	timerRequest,
-	// 	newUser,
-	// 	utils.GenerateRandomID,
-	// )
-	// resp := session.InitSessionResponse{
-	// 	Session: newSession,
-	// 	User: newUser,
-	// }
-	// newSessionRes, _ := json.Marshal(resp)
-	// w.Write(newSessionRes)
 }
 
 func newSessionEndpoint(w http.ResponseWriter, r *http.Request) {
