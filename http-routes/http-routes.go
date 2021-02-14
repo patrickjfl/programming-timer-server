@@ -58,7 +58,7 @@ func pauseSessionEndpoint(w http.ResponseWriter, r *http.Request) {
 }
 
 func unpauseSessionEndpoint(w http.ResponseWriter, r *http.Request) {
-	var sessionToUnpause session.PauseRequest
+	var sessionToUnpause session.UnpauseRequest
 	var requestBody = r.Body
 	log.Println("request body", requestBody)
 	enableCors(&w)

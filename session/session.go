@@ -71,6 +71,12 @@ type PauseRequest struct {
 	PauseTime int64  `json:"pauseTime"`
 }
 
+// UnpauseRequest ... incoming pause time and session ID from client
+type UnpauseRequest struct {
+	SessionID   string `json:"sessionId"`
+	UnpauseTime int64  `json:"unpauseTime"`
+}
+
 // Sessions is a collection of all current sessions
 var Sessions []Session
 
@@ -81,7 +87,7 @@ var UpdateTimerChannel = make(chan UpdateRequest)
 var PauseTimerChannel = make(chan PauseRequest)
 
 // UnpauseTimerChannel reads restart requests as they come in via unpauseSessionEndpoint
-var UnpauseTimerChannel = make(chan PauseRequest)
+var UnpauseTimerChannel = make(chan UnpauseRequest)
 
 // CreateNewUserAndSession creates new users and sessions
 func CreateNewUserAndSession(
@@ -148,8 +154,8 @@ func HandlePauseSession(sessionToPause PauseRequest) {
 }
 
 // HandleUnpauseSession when the driver pauses the timer
-func HandleUnpauseSession(sessionToUnpause PauseRequest) {
-	unpauseTime := UnpauseSessionResponse{UnpauseTime: sessionToUnpause.PauseTime}
+func HandleUnpauseSession(sessionToUnpause UnpauseRequest) {
+	unpauseTime := UnpauseSessionResponse{UnpauseTime: sessionToUnpause.UnpauseTime}
 	unpausedSessionIdx, unpauseErr := getExistingSession(sessionToUnpause.SessionID)
 	if unpauseErr != nil {
 		log.Println("pauseError", unpauseErr)
